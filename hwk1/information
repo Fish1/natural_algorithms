@@ -1,0 +1,80 @@
+Jacob Enders
+HWK 1
+Natural Algorithms
+
+1) Jump to a random coordinate within the domain.
+	Every coordinate value must be [-8,8]
+2) Get the fitness at that coordinate position
+3) If that fitness is greater than the previous greatest
+	fitness, then set it to the greatest fitness.
+4) Twitch all the coordinate values by [-1,1]
+5) If the new coordinate is out of the domain, then repeat step 4
+6) go back to step 2, 1000 times
+7) go back to step 1, 100 times
+
+
+Dim 1 
+--- 1000 ---
+Best Value = 0.838202
+Best Coords = 1.00706, 
+--- 10000 ---
+Best Value = 0.840176
+Best Coords = 1.00281, 
+--- 100000 ---
+Best Value = 0.841025
+Best Coords = 1.00097, 
+
+Dim 2 
+--- 1000 ---
+Best Value = -0.192872
+Best Coords = 0.0975471, -1.2201, 
+--- 10000 ---
+Best Value = 0.368165
+Best Coords = 0.921513, -2.56543, 
+--- 100000 ---
+Best Value = 0.408254
+Best Coords = 1.07593, -2.57827, 
+
+Dim 3 
+--- 1000 ---
+Best Value = -1.34065
+Best Coords = 2.02518, -2.95747, 4.78866, 
+--- 10000 ---
+Best Value = 0.300541
+Best Coords = 0.428583, -2.29643, 3.02274, 
+--- 100000 ---
+Best Value = 0.471349
+Best Coords = 0.957965, -1.93133, 2.52128, 
+
+Dim 5 
+--- 1000 ---
+Best Value = -1.40017
+Best Coords = 2.06903, -2.31713, 3.18124, -1.49795, 0.215007, 
+--- 10000 ---
+Best Value = -0.532556
+Best Coords = 1.47216, -1.02356, 3.67875, -0.163119, 0.407948, 
+--- 100000 ---
+Best Value = -0.532556
+Best Coords = 1.47216, -1.02356, 3.67875, -0.163119, 0.407948, 
+
+Dim 8 
+--- 1000 ---
+Best Value = -5.39824
+Best Coords = -0.20047, -4.73348, 0.0820913, -3.40046, 3.77202, -2.29584, 2.21382, 0.428129, 
+--- 10000 ---
+Best Value = -4.7746
+Best Coords = -0.363989, -5.72937, 4.17037, 0.00796666, 2.96848, -0.0203986, 4.48511, -2.48592, 
+--- 100000 ---
+Best Value = -2.76082
+Best Coords = 1.82136, -1.67426, 2.40675, -1.35697, 2.0636, 0.64845, 3.42778, 0.0689843, 
+
+Dim 13 
+--- 1000 ---
+Best Value = -9.54172
+Best Coords = -0.0417196, 0.390334, 2.86104, 1.55749, 0.432971, 6.2052, 0.227678, -2.53829, -1.89573, -1.94707, 5.84555, 0.693725, 2.77055, 
+--- 10000 ---
+Best Value = -7.42817
+Best Coords = 3.07832, -3.65508, 3.036, 0.12674, 4.0758, 0.964356, 2.41108, 2.44269, 2.89331, -1.66099, -1.26546, 2.26417, -1.87457, 
+--- 100000 ---
+Best Value = -4.34085
+Best Coords = 0.739578, -2.40647, 0.526389, -1.99649, -1.58208, -2.83496, 3.64694, -0.803699, 2.1175, -2.39086, 1.62416, -2.53171, 1.20613, 
