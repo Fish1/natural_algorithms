@@ -90,9 +90,7 @@ int main(int argc, char *argv[]) {
         score += dif * dif * dif;
     }
 
-    //printf("%s%ld\n", str, score);
-
-	printf("%ld\n", score);
+    printf("%s%ld\n", str, score);
 
     return EXIT_SUCCESS;
 }
