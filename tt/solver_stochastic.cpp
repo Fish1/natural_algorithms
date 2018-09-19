@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <vector>
 #include <cmath>
-#include <cstring>
-#include <string>
 
-#include "fitness.hpp"
+#include "utility.hpp"
 
+/*
 std::string pairs_to_ops(std::string pairs)
 {
 	std::stringstream ss(pairs);
@@ -80,7 +77,7 @@ std::string pairs_to_ops(std::string pairs)
 
 	return result.str();
 }
-
+*/
 struct Solution_Data 
 {
 	std::string solution_1000;

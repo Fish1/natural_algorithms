@@ -7,77 +7,6 @@
 
 #include "utility.hpp"
 
-/*
-std::string pairs_to_ops(std::string pairs)
-{
-	std::stringstream ss(pairs);
-	std::stringstream result; 
-	
-	int location = 0;
-
-	while(true)
-	{
-		int pickup;
-
-		if(ss >> pickup)
-		{
-			int difference = pickup - location;
-			char buffer_pickup[std::abs(difference)];
-
-			if(difference < 0)
-			{
-				memset(buffer_pickup, 'L', sizeof(char) * std::abs(difference));		
-				result.write(buffer_pickup, std::abs(difference));
-			}
-			else if(difference > 0)
-			{
-				memset(buffer_pickup, 'R', sizeof(char) * std::abs(difference));		
-				result.write(buffer_pickup, std::abs(difference));
-			}
-			
-			result << "P";
-
-			location += difference;
-		}
-		else
-		{
-			break;
-		}
-	
-		int dropoff;
-
-		if(ss >> dropoff)
-		{
-			int difference = dropoff - location;
-		
-			char buffer_dropoff[std::abs(difference)];
-			
-			if(difference < 0)
-			{
-				memset(buffer_dropoff, 'L', sizeof(char) * std::abs(difference));		
-				result.write(buffer_dropoff, std::abs(difference));
-			}
-			else if(difference > 0)
-			{
-				memset(buffer_dropoff, 'R', sizeof(char) * std::abs(difference));		
-				result.write(buffer_dropoff, std::abs(difference));
-			}
-			
-			result << "D";
-
-			location += difference;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	result << "X";
-
-	return result.str();
-}
-*/
 struct Solution_Data 
 {
 	std::string solution_1000;
@@ -165,13 +94,15 @@ std::string find_solution(std::string filename, unsigned int approx_completeness
 		result << random_pickup << " ";
 
 		++move_count;
-	
+
+	/*	
 		if(approx_completeness == 0)
 			return result.str();
 		if(rand() % approx_completeness == 0)
 		{
 			return result.str();
 		}
+	*/
 
 		int small_stacks_random_index = rand() % small_stacks.size();
 		int random_dropoff = small_stacks.at(small_stacks_random_index);		
@@ -179,7 +110,7 @@ std::string find_solution(std::string filename, unsigned int approx_completeness
 		current_stack[random_dropoff] += 1;
 		result << random_dropoff << " ";
 
-		++move_count;
+	//	++move_count;
 
 		if(current_stack[random_pickup] == target_stack[random_pickup])
 		{
@@ -190,6 +121,40 @@ std::string find_solution(std::string filename, unsigned int approx_completeness
 		{
 			small_stacks.erase(small_stacks.begin() + small_stacks_random_index);
 		}	
+	}
+
+	return result.str();
+}
+
+std::string mutate(std::string thing)
+{
+	std::vector<int> current_solution;
+
+	std::stringstream ss(thing);
+	
+	int number = 0;
+	while(ss >> number)
+	{
+		current_solution.push_back(number);
+	}
+
+	if(current_solution.size() == 0)
+		return "X";
+
+	int i = rand() % current_solution.size();
+
+	int j = ((rand() % ((current_solution.size() - 2) / 2)) * 2) + (i % 2);
+
+	int i_val = current_solution[i];
+	current_solution[i] = current_solution[j];
+	current_solution[j] = i_val;
+
+
+	std::stringstream result;
+	for(int i : current_solution)
+	{
+		result << i;
+		result << " ";
 	}
 
 	return result.str();
@@ -251,8 +216,8 @@ int main(int argc, char ** argv)
 {
 	srand(clock());
 
-	std::string filename;
-
+	std::string filename = argv[1];
+/*
 	unsigned int completeness;	
 
 	if(argc == 2)
@@ -285,6 +250,28 @@ int main(int argc, char ** argv)
 	std::cout << "Runs = 100000" << std::endl;
 	std::cout << "Fitness = " << data.fitness_100000 << std::endl;
 	std::cout << "Solution = " << data.solution_100000 << std::endl;
+*/
+	std::string s = find_solution(filename, 100);
 
+	std::cout << s << std::endl;
+
+	std::cout << std::endl;
+	
+	for(unsigned int index = 0; index < 100000; ++index)
+	{
+		s = mutate(s);
+		std::cout << s << std::endl;
+	}
+
+	for(unsigned int index = 0; index < 100; ++index)
+	{
+		std::string solution = find_solution(filename, 100);
+
+		for(unsigned int index = 0; index < 1000; ++index)
+		{
+			std::string op_solution = pairs_to_ops(solution);
+			int fit = fitness(op_solution, filename);
+		}
+	}
 	return 0;
 }
