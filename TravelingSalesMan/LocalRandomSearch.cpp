@@ -83,7 +83,8 @@ void LocalRandomSearch::run()
 		if(m_heatHelp == 1000000)
 			m_heatHelp = 0;
 */
-		m_heat = std::sin((double)m_totalIterations) + sin((double)m_totalIterations / 100000.0) * 100.0;
+		m_heat = std::sin((double)m_totalIterations) + sin((double)m_totalIterations / 10000.0) * 100.0;
+		m_heat -= 30.0f;
 
 		if(perimeter < m_bestPerimeter)
 		{
@@ -108,4 +109,9 @@ uint64_t LocalRandomSearch::getTotalIterations()
 double LocalRandomSearch::getHeat()
 {
 	return m_heat;
+}
+
+double LocalRandomSearch::getBestPerimeter()
+{
+	return m_bestPerimeter;
 }

@@ -65,7 +65,8 @@ int main(void)
 			if(event.type == sf::Event::KeyPressed)
 				if(event.key.code == sf::Keyboard::Enter)
 				{
-					std::cout << "Iteration: " << lrv.getTotalIterations() << " Heat: " << lrv.getHeat() << std::endl;
+					std::cout << "Iteration: " << lrv.getTotalIterations() << " Heat: " << lrv.getHeat();
+					std::cout << " Best Perimeter: " << lrv.getBestPerimeter() << std::endl;
 				}
 		}
 

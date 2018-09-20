@@ -33,6 +33,8 @@ public:
 	uint64_t getTotalIterations();
 
 	double getHeat();
+
+	double getBestPerimeter();
 };
 
 #endif

@@ -7,7 +7,7 @@ void generateCoordinateData(std::string filename, uint32_t amount)
 	std::ofstream file(filename);
 
 	std::random_device device;
-	std::uniform_real_distribution<double> distribution(1.0, 800.0);
+	std::uniform_real_distribution<double> distribution(1.0, 400.0);
 
 	for(uint32_t index = 0; index < amount; ++index)
 	{
