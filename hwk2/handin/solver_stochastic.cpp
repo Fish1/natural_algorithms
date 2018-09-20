@@ -159,7 +159,9 @@ int main(int argc, char ** argv)
 		std::cout << "bad arguments" << std::endl;
 		std::cout << "./solver <file> <completeness>" << std::endl;
 		return 1;
-	}	
+	}
+
+	std::cout << "From File: " << filename << std::endl << std::endl;
 	
 	uint64_t best_fitness = UINT64_MAX;
 	std::vector<int> best_solution;
@@ -199,6 +201,8 @@ int main(int argc, char ** argv)
 			}	
 		}
 	}
+
+	std::cout << std::endl;
 
 	return 0;
 }

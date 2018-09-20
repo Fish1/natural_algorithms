@@ -1,18 +1,22 @@
 -- How to Run --
 make
-./solver <initial file> <completeness>
+./solver_stochastic <file> <completeness>
 
-<initial file> is the file for the initial stacks
+<file> is the file for the initial stacks
 
-<completeness> determines the chance the solver will stop the solution early
-	for example...
-	100 will give the solver a 1% chance of ending the solution early
-	200 ... a 0.5% chance
-	400 ... a 0.25% chance
-	2 ... a 50% chance
-	0 ... will let the program choose a chance every time it creates a solution
-		between [1, 200]
-	
+<completeness> higher numbers make the program look at generally longer solutions
+	(based on my understanding of statistics, i think the completeness works like a logarthmic curve,
+		where you need exponentially larger <completeness> to look at 
+		linearlly larger solution lengths)
+
+	0 ... will let the program choose the value
+
+-- My Algorithm--
+
+My random start, is the process of creating a random solution with a random length.
+My step, is to swap two values of either even or odd in the solution.
+
+steps 1 - 6 randomly go to a "coordinate"
 
 1) get the result of (rand() % completeness + stack_count)
 	if it's equal to 0 then return the solution, goto step 6
@@ -28,4 +32,11 @@ make
 
 5) if there are any remaining stacks that are too large, goto step 1
 
-6) goto step 1, 100000 times
+steps 6 - 7 "wiggle" around the "coordinate"
+
+6) either swap an odd index of the solution with another odd index of the solution
+	or swap an even index with an even index
+
+7) goto step 6, 100 times
+
+8) goto step 1, 1000 times
