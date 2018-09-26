@@ -16,28 +16,46 @@
 
 #include "Utilities.hpp"
 
-void plot(sf::RenderWindow & window, std::vector<Coordinate> coordinates)
+void plot(sf::RenderWindow & window, std::vector<Coordinate> & best, std::vector<Coordinate> & current)
 {
-	sf::CircleShape point(3.0f);
+	sf::RectangleShape point(sf::Vector2f(5.0f, 5.0f));
 
-	Coordinate lastCoordinate = coordinates.at(coordinates.size() - 1);
+	Coordinate lastCoordinate = current.at(current.size() - 1);
 
-	for(Coordinate coordinate : coordinates)
+	for(Coordinate coordinate : current)
 	{
-		point.setPosition(coordinate.x, coordinate.y);
-		point.setOrigin(1.5f, 1.5f);
-
-		window.draw(point);
-
+		
 		sf::Vertex line[] = 
 		{ 
-			sf::Vertex(sf::Vector2f(coordinate.x, coordinate.y)), 
-			sf::Vertex(sf::Vector2f(lastCoordinate.x, lastCoordinate.y)) 
+			sf::Vertex(sf::Vector2f(coordinate.x, coordinate.y), sf::Color::Red), 
+			sf::Vertex(sf::Vector2f(lastCoordinate.x, lastCoordinate.y), sf::Color::Red) 
 		};
 		
 		window.draw(line, 2, sf::Lines);
-
 		lastCoordinate = coordinate;
+	}
+	
+	lastCoordinate = best.at(best.size() - 1);
+
+	for(Coordinate coordinate : best)
+	{
+		sf::Vertex line[] = 
+		{ 
+			sf::Vertex(sf::Vector2f(coordinate.x, coordinate.y), sf::Color::Green), 
+			sf::Vertex(sf::Vector2f(lastCoordinate.x, lastCoordinate.y), sf::Color::Green) 
+		};
+		
+		window.draw(line, 2, sf::Lines);
+		lastCoordinate = coordinate;
+	}
+	
+	for(Coordinate coordinate : best)
+	{
+		point.setPosition(coordinate.x, coordinate.y);
+		point.setOrigin(2.5f, 2.5f);
+//		point.setFillColor(sf::Color::Red);
+
+		window.draw(point);
 	}
 }
 
@@ -73,7 +91,7 @@ int main(void)
 		if(i % 100 == 0)
 		{
 			window.clear();
-			plot(window, lrv.getBestList());
+			plot(window, lrv.getBestList(), lrv.getCurrentList());
 			window.display();
 		}
 

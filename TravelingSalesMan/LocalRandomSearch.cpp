@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <algorithm>
+
 #include "LocalRandomSearch.hpp"
 
 #include "Utilities.hpp"
@@ -20,78 +22,107 @@ LocalRandomSearch::LocalRandomSearch(std::vector<Coordinate> initial)
 	
 	m_heat = 0;
 	m_heatHelp = 0;
+
+	m_distribution = std::uniform_real_distribution<double>(0.0, 100.0);
+	m_distributionOnList = std::uniform_int_distribution<int>(0, m_currentList.size() - 1);
+
+	m_totalImprovements = PAST_SIZE;
+	std::fill(std::begin(m_pastImprovements), std::end(m_pastImprovements), 1);	
+	m_currentImprovement = 0;
+	
+	m_areaStart = 0;
+	m_areaEnd = 5;
+
+	m_areaSize = 3;
+
+	m_bestAreaPerimeter = m_currentPerimeter;
 }
 
 void LocalRandomSearch::run()
 {
 	++m_totalIterations;
-
-	if(m_swapsSinceImprovement == 1000)
 	{
-		randomSwap(m_currentList);
-		
-		double m_oldPerimeter = m_currentPerimeter;	
-		m_currentPerimeter = calculatePerimeter(m_currentList);
-
-		if(m_currentPerimeter < m_bestPerimeter)
-		{
-			m_bestList = m_currentList;
-			m_bestPerimeter = m_currentPerimeter;
-		}
-		
-		if(m_currentPerimeter < m_oldPerimeter)
-		{
-			m_swapsSinceImprovement = 0;
-		}
-	}
-	else
-	{
-		double currentPerimeter = m_currentPerimeter;
-		
 		std::vector<Coordinate> tmpCoords = m_currentList;
-		randomSwap(tmpCoords);
+		//randomSwap(tmpCoords);
+		randomSwapNeighborsInArea(tmpCoords, m_areaStart, m_areaEnd);
 		double tmpPerimeter = calculatePerimeter(tmpCoords);
-	
-		double perimeter = currentPerimeter;
-	
-		if(rand() % 100 < m_heat)
-		{
-			m_currentList = tmpCoords;
-			m_currentPerimeter = tmpPerimeter;
-			m_swapsSinceImprovement = 0;
-			perimeter = tmpPerimeter;		
-		}
-		else if(tmpPerimeter < currentPerimeter)
-		{
-			m_currentList = tmpCoords;
-			m_currentPerimeter = tmpPerimeter;
-			m_swapsSinceImprovement = 0;
-			perimeter = tmpPerimeter;		
 
+		// remove the current improvement from the total
+		m_totalImprovements -= m_pastImprovements[m_currentImprovement];
+
+		// add the new improvement to the total
+		//if(tmpPerimeter < m_currentPerimeter)
+		if(tmpPerimeter < m_bestAreaPerimeter)
+		{
+			m_pastImprovements[m_currentImprovement] = 0;
+			m_totalImprovements += 0;
+
+			m_bestAreaPerimeter = tmpPerimeter;
 		}
 		else
 		{
-		//	m_swapsSinceImprovement += 1;
-
+			m_pastImprovements[m_currentImprovement] = 1;
+			m_totalImprovements += 1;
 		}
 
-		m_heatHelp += 
+		// iterate to the next element in the array
+		m_currentImprovement += 1;
+		m_currentImprovement = m_currentImprovement % PAST_SIZE;
 
-/*		
-		m_heatHelp += 1;
-		m_heat = (std::sin(((double)m_heatHelp / 1000000.0) * 2.0 * 3.1415) + 1) * 50.0;
-		if(m_heatHelp == 1000000)
-			m_heatHelp = 0;
-*/
-		m_heat = std::sin((double)m_totalIterations) + sin((double)m_totalIterations / 10000.0) * 100.0;
-		m_heat -= 30.0f;
+		// calculate average improvement
+		// 0 = alot of improvement
+		// 1 = no improvement
+		double averageImprovement = (double)m_totalImprovements / (double)PAST_SIZE;
 
-		if(perimeter < m_bestPerimeter)
+		m_heat = 100 * averageImprovement;
+
+		// randomly accept the temporary coordinates based on the current heat	
+		if(m_distribution(m_randomDevice) < m_heat)
+		{
+			m_currentList = tmpCoords;
+			m_currentPerimeter = tmpPerimeter;
+		}
+		// if you don't blindly accept it, then only accpet it if it's smaller
+		// than the current
+		//else if(tmpPerimeter < m_currentPerimeter)
+		else if(tmpPerimeter < m_currentPerimeter)
+		{
+			m_currentList = tmpCoords;
+			m_currentPerimeter = tmpPerimeter;
+		}
+
+		// if the current perimeter is less than the best
+		// then the best is now the current
+		if(m_currentPerimeter < m_bestPerimeter)
 		{
 			m_bestPerimeter = m_currentPerimeter;
 			m_bestList = m_currentList;
 			std::cout << "Iteration: " << m_totalIterations
 			<< " Perimeter: " << m_bestPerimeter<< std::endl;
+		}
+
+		//if(m_totalIterations % 100000 == 0)
+		if(m_heat > 90) // || m_totalIterations % 100000 == 0)
+		{
+			m_areaStart = m_distributionOnList(m_randomDevice);
+			m_areaEnd = m_areaStart + (m_distributionOnList(m_randomDevice) % (m_currentList.size() - m_areaStart));
+			m_areaEnd = m_areaStart + m_areaSize;
+			if(m_areaEnd >= m_currentList.size())
+				m_areaEnd = m_currentList.size() - 1;
+
+			m_bestAreaPerimeter = m_currentPerimeter;
+
+			m_totalImprovements = 0;
+			std::fill(std::begin(m_pastImprovements), std::end(m_pastImprovements), 0);	
+			m_currentImprovement = 0;
+
+//			std::cout << "Start: " << m_areaStart << " End: " << m_areaEnd << std::endl;
+
+//			m_currentPerimeter = m_bestPerimeter;
+//			m_currentList = m_bestList;
+
+			m_areaSize += 1;
+			m_areaSize = m_areaSize % (m_currentList.size() / 5);
 		}
 	}
 }
@@ -99,6 +130,11 @@ void LocalRandomSearch::run()
 std::vector<Coordinate> & LocalRandomSearch::getBestList()
 {
 	return m_bestList;
+}
+
+std::vector<Coordinate> & LocalRandomSearch::getCurrentList()
+{
+	return m_currentList;
 }
 
 uint64_t LocalRandomSearch::getTotalIterations()
