@@ -48,115 +48,6 @@ void printGrid_test(std::vector<Pair> grid, unsigned int columns)
 	std::cout << std::endl;
 }
 
-
-std::vector<Pair> solveForOdd(std::vector<Pair> initialRow)
-{
-	unsigned int size = initialRow.size();
-
-	std::vector<Pair> result = initialRow;
-
-	std::vector<Pair> previousRow = initialRow;
-
-	for(unsigned int row = 0; row < size - 1; ++row)
-	{
-		std::vector<Pair> newRow;
-		newRow.resize(size);
-
-		for(unsigned int column = 0; column < size; ++column)
-		{
-			newRow.at(column).m_a = previousRow.at((column + 1) % size).m_a;
-		}
-
-		for(unsigned int column = 0; column < size; ++column)
-		{
-			newRow.at(column).m_b = previousRow.at((column + size - 1) % size).m_b;
-		}
-
-		result.insert(result.end(), newRow.begin(), newRow.end());
-
-		previousRow = newRow;
-	}
-
-	return result;
-}
-
-std::vector<Pair> solveForMultipleFour(std::vector<Pair> initialRow)
-{
-	unsigned int size = initialRow.size();
-
-	std::vector<Pair> result = initialRow;
-
-	std::vector<Pair> previousRow = initialRow;
-
-	for(unsigned int row = 0; row < size - 1; ++row)
-	{
-		std::vector<Pair> newRow;
-
-		for(unsigned int column = 0; column < size; ++column)
-		{
-			Pair pair;
-
-			// half way we do special stuff
-			if(row == (size / 2) - 1)
-			{
-				pair.m_a = previousRow.at((column + (size / 2)) % size).m_a;
-				
-				// even column
-				if(column % 2 == 0)
-				{
-					pair.m_b = previousRow.at((column + 1) % size).m_b;	
-				}
-				// odd column
-				else if(column % 2 == 1)
-				{
-					pair.m_b = previousRow.at((column + size - 1) % size).m_b;	
-				}
-			}		
-			// even row	
-			else if(row % 2 == 0)
-			{
-				// even column
-				if(column % 2 == 0)
-				{
-					pair.m_a = previousRow.at((column + 1) % size).m_a;
-					pair.m_b = previousRow.at((column + size - 1) % size).m_b;
-				}
-				// odd column
-				else if(column % 2 == 1)
-				{
-					pair.m_a = previousRow.at((column + size - 1) % size).m_a;
-					pair.m_b = previousRow.at((column + 1) %  size).m_b;
-				}
-			}
-			// odd row
-			else if(row % 2 == 1)
-			{
-				// even column
-				if(column % 2 == 0)
-				{
-					pair.m_a = previousRow.at((column + size - 1) % size).m_a;
-					pair.m_b = previousRow.at((column + 1) %  size).m_b;
-				}
-				// odd column
-				else if(column % 2 == 1)
-				{
-					pair.m_a = previousRow.at((column + 1) % size).m_a;
-					pair.m_b = previousRow.at((column + size - 1) % size).m_b;
-				}
-
-			}
-
-			newRow.push_back(pair);	
-		}
-
-		result.insert(result.end(), newRow.begin(), newRow.end());
-
-		previousRow = newRow;
-	}
-
-	return result;
-}
-
 std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 {
 	srand(time(0));
@@ -172,10 +63,10 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 	previousRow.insert(previousRow.end(), initialRow.begin(), initialRow.end());
 
 	unsigned int iterations = 0;
-	
 
 	for(unsigned int row = 0; row < size - 1; ++row)
 	{
+
 		std::vector<Pair> newRow;
 	
 		std::vector<Pair> tempResult = result;
@@ -183,7 +74,7 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 		unsigned int bestFitness = -1;
 
 		unsigned int currentFitness;
-	
+		
 		do
 		{
 			std::vector<unsigned int> leftNumbers;
@@ -212,11 +103,11 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 				newRow.push_back(newPair);
 			}
 			
+			++iterations;
+
 			tempResult.insert(tempResult.end(), newRow.begin(), newRow.end());
 
 			currentFitness = fitnessNonSquare(tempResult, row + 2, size);
-			
-			++iterations;
 
 			if(currentFitness < bestFitness)
 			{
@@ -230,21 +121,36 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 			}
 		} 
 		while(currentFitness != 0 && iterations < 1000 * ((row * 5) + 1));
-			
+		
 		previousRow = newRow;	
 
 		result = tempResult;
 		
 		if(iterations == 1000 * ((row * 5) + 1))
 		{
-			result.clear();
-			result.insert(result.end(), initialRow.begin(), initialRow.end());
+			// this is the second row so don't delete row 1
+			if(row == 0)
+			{
+				result.erase(result.end() - size, result.end());
+			
+			}
+			// otherwise delete the last two rows
+			else
+			{
+				std::cout << "ERASE 2" << std::endl;
+				result.erase(result.end() - (2 * size), result.end());
+			}
+			row -= 1;
 			previousRow.clear();
-			previousRow.insert(previousRow.end(), initialRow.begin(), initialRow.end());
-			row = -1;
+			previousRow.insert(previousRow.end(), result.end() - size, result.end());
 
-			std::cout << "test" << std::endl;
+			std::cout << result.size() << std::endl;
+
+			for(Pair p : result)
+				std::cout << "(" << p.m_a << ":" << p.m_b << ") ";
 		}
+
+		iterations = 0;
 	}
 
 	return result;
@@ -263,13 +169,13 @@ int main(int argc, char ** argv)
 
 	solveStochastic(i);
 
-	//printGrid(result, size);
+//	printGrid(result, size);
 
 	std::cout << std::endl;
 
-	//unsigned int f = fitness_test(result, size);
+//	unsigned int f = fitness_test(result, size);
 
-	//std::cout << "Fitness Test: " << f << std::endl << std::endl;
-
+//	std::cout << "Fitness Test: " << f << std::endl << std::endl;
+	
 	return 0;
 }
