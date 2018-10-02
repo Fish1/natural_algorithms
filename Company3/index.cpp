@@ -97,16 +97,20 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 
 	unsigned int iterations = 0;
 
+	unsigned int currentFitness = bestFitness;
+
+	bestNeighborhoodFitness = currentFitness;
+
+	std::vector<Pair> bestNeighborhoodResult = result;
+
 	while(bestFitness != 0)
 	{
-			bestNeighborhoodFitness = fitness_test(result, size);
-
 			// FIND FIRST IMPROVEMENT FROM CHANGING THE NEIGHBORHOOD
-			for(unsigned int run = 0; run < 10000; ++run)
+			for(unsigned int run = 0; run < 2000; ++run)
 			{
 				unsigned int row = size - 1 - (rand() % neighborhood);
 //				row = size - 1 - row;
-
+				for(unsigned int a = 0; a < neighborhood; ++a)
 				{
 					if(rand() % 2 == 0)
 					{
@@ -130,7 +134,7 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 					}
 				}
 
-				unsigned int currentFitness = fitness_test(result, size);
+				currentFitness = fitness_test(result, size);
 				++iterations;
 
 				if(currentFitness < bestNeighborhoodFitness)
@@ -139,6 +143,7 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 					std::cout << "Fitness: " << currentFitness << std::endl;
 					std::cout << "Iterations: " << iterations << std::endl << std::endl;
 					bestNeighborhoodFitness = currentFitness;
+					bestNeighborhoodResult = result;
 				
 					if(currentFitness < bestFitness)
 					{
@@ -156,6 +161,8 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 			neighborhood += 1;
 			if(neighborhood == size + 1)
 			{
+				bestNeighborhoodFitness = -1;
+				result = bestNeighborhoodResult;
 				neighborhood = 1;
 			}
 	}
