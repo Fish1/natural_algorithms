@@ -33,21 +33,6 @@ void printGrid(std::vector<Pair> grid, unsigned int size)
 	}
 }
 
-void printGrid_test(std::vector<Pair> grid, unsigned int columns)
-{
-	for(unsigned int index = 0; index < grid.size(); ++index)
-	{
-		if(index % columns == 0)
-		{
-			std::cout << std::endl << "\t";
-		}	
-
-		std::cout << grid.at(index).m_a << ":" << grid.at(index).m_b << "\t";
-	}
-
-	std::cout << std::endl;
-}
-
 std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 {
 	srand(time(0));
@@ -108,62 +93,71 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 	
 	bestFitness = fitness_test(bestResult, size);
 
+	unsigned int bestNeighborhoodFitness = bestFitness;
+
+	unsigned int iterations = 0;
+
 	while(bestFitness != 0)
 	{
+			bestNeighborhoodFitness = fitness_test(result, size);
 
-	// FIND FIRST IMPROVEMENT FROM CHANGING THE NEIGHBORHOOD
-	for(unsigned int run = 0; run < 10000; ++run)
-	{
-		for(unsigned int row = 1; row < neighborhood + 1; ++row)
-		{
-			for(unsigned int index = 0; index < 2; ++index)
+			// FIND FIRST IMPROVEMENT FROM CHANGING THE NEIGHBORHOOD
+			for(unsigned int run = 0; run < 10000; ++run)
 			{
-				// swap two left values
-				unsigned int swap_left_1 = rand() % size;	
-				unsigned int swap_left_2 = rand() % size;
-				unsigned int a_1 = result.at(swap_left_1 + size * neighborhood).m_a;
-				unsigned int a_2 = result.at(swap_left_2 + size * neighborhood).m_a;
-				result.at(swap_left_1 + size * row).m_a = a_2;
-				result.at(swap_left_2 + size * row).m_a = a_1;
+				unsigned int row = size - 1 - (rand() % neighborhood);
+//				row = size - 1 - row;
 
-				// swap two right values
-				unsigned int swap_right_1 = rand() % size;
-				unsigned int swap_right_2 = rand() % size;
-				unsigned int b_1 = result.at(swap_right_1 + size * neighborhood).m_b;
-				unsigned int b_2 = result.at(swap_right_2 + size * neighborhood).m_b;
-				result.at(swap_right_1 + size * row).m_b = b_2;
-				result.at(swap_right_2 + size * row).m_b = b_1;
+				{
+					if(rand() % 2 == 0)
+					{
+						// swap two left values
+						unsigned int swap_left_1 = rand() % size;	
+						unsigned int swap_left_2 = rand() % size;
+						unsigned int a_1 = result.at(swap_left_1 + size * row).m_a;
+						unsigned int a_2 = result.at(swap_left_2 + size * row).m_a;
+						result.at(swap_left_1 + size * row).m_a = a_2;
+						result.at(swap_left_2 + size * row).m_a = a_1;
+					}
+					else
+					{
+						// swap two right values
+						unsigned int swap_right_1 = rand() % size;
+						unsigned int swap_right_2 = rand() % size;
+						unsigned int b_1 = result.at(swap_right_1 + size * row).m_b;
+						unsigned int b_2 = result.at(swap_right_2 + size * row).m_b;
+						result.at(swap_right_1 + size * row).m_b = b_2;
+						result.at(swap_right_2 + size * row).m_b = b_1;
+					}
+				}
+
+				unsigned int currentFitness = fitness_test(result, size);
+				++iterations;
+
+				if(currentFitness < bestNeighborhoodFitness)
+				{
+					printGrid(result, size);
+					std::cout << "Fitness: " << currentFitness << std::endl;
+					std::cout << "Iterations: " << iterations << std::endl << std::endl;
+					bestNeighborhoodFitness = currentFitness;
+				
+					if(currentFitness < bestFitness)
+					{
+							bestFitness = currentFitness;
+							bestResult = result;
+					}
+					
+					run = 0;
+				}
 			}
-		}
 
-		unsigned int currentFitness = fitness_test(result, size);
-	
-		unsigned int localFitness =  fitnessNonSquare(result, neighborhood, size);
+			result = bestResult;
 
-		if(localFitness == 0)
-		//if(localFitness < bestFitness)
-		//if(currentFitness < bestFitness)
-		{
-			printGrid(result, size);
-			std::cout << "Fitness: " << currentFitness << std::endl << std::endl;
-			bestFitness = currentFitness;
-			bestResult = result;
-			break;
-		}
-		printGrid(result, size);
-		std::cout << "Fitness: " << currentFitness << std::endl << std::endl;
-	}
-
-	result = bestResult;
-
-	//CHANGE THE NEIGHBORHOOD
-	neighborhood += 1;
-	if(neighborhood == size)
-	{
-		std::cout << "test" << std::endl;
-		neighborhood = 2;	
-	}
-	
+			//CHANGE THE NEIGHBORHOOD
+			neighborhood += 1;
+			if(neighborhood == size + 1)
+			{
+				neighborhood = 1;
+			}
 	}
 	
 	return result;
@@ -172,7 +166,6 @@ std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
 
 int main(int argc, char ** argv)
 {
-	std::cout << "xddddddddddddddddddddd.com/xddddddddddd.html" << std::endl;
 	unsigned int size = std::atoi(argv[1]);
 
 	std::vector<Pair> i = generateInitialRow(size);
