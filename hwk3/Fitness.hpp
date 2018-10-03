@@ -6,14 +6,14 @@
 #include "Pair.hpp"
 
 // expects all pairs in a single vector
-unsigned int fitness(const std::vector<Pair> & data, unsigned int size)
+unsigned int fitness(std::vector<Pair> data, unsigned int size)
 {
 	unsigned int f = 0;
 
-	for(unsigned int element = 0; element < 2 * size; ++element)
+	// count the rows for violations of repeating values	
+	for(unsigned int y = 0; y < size; ++y)
 	{
-		// count the rows for violations of repeating values	
-		for(unsigned int y = 0; y < size; ++y)
+		for(unsigned int element = 0; element < 2 * size; ++element)
 		{
 			bool hasElement = false;
 
@@ -30,9 +30,12 @@ unsigned int fitness(const std::vector<Pair> & data, unsigned int size)
 			if(hasElement == false)
 				f += 1;	
 		}
+	}
 
-		// count the columns for violations of repeating values
-		for(unsigned int x = 0; x < size; ++x)
+	// count the columns for violations of repeating values
+	for(unsigned int x = 0; x < size; ++x)
+	{
+		for(unsigned int element = 0; element < 2 * size; ++element)
 		{
 			bool hasElement = false;	
 			for(unsigned int y = 0; y < size; ++y)
@@ -50,22 +53,29 @@ unsigned int fitness(const std::vector<Pair> & data, unsigned int size)
 		}
 	}
 
+	// get first element count all elements of the same,
+	// if you find same elements remove them
+
 	unsigned int duplicatedPairs = 0;
 
-	for(unsigned int index = 0; index < data.size(); ++index)
+	while(data.size() > 0)
 	{
-		Pair pairCheck = data.at(index);
+		Pair pairCheck = data.at(0);
+		
+		data.erase(data.begin());
 
-		for(unsigned int index2 = index + 1; index2 < data.size(); ++index2)
+		for(unsigned int index = 0; index < data.size(); ++index)
 		{
-			Pair pairAtLocation = data.at(index2);
+			Pair pairAtLocation = data.at(index);
 
 			if(pairAtLocation == pairCheck)
 			{
 				duplicatedPairs += 1;
-			}
-		}
-	}
+				data.erase(data.begin() + index);
+				--index;
+			}	
+		}	
+	}	
 
 	f += duplicatedPairs;
 

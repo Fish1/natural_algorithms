@@ -1,199 +1,201 @@
 #include <iostream>
-#include <vector> 
-class Pair
-{
-public:
-	unsigned int a;
-	unsigned int b;
-};
 
-Pair getElement(std::vector<Pair> data, unsigned int n, unsigned int x, unsigned int y)
-{
-	return data.at(x * n + y);
-}
+#include <vector>
 
-int fitness(std::vector<Pair> data, unsigned int rowLength)
-{
-	return 0;	
-}
+#include "Fitness.hpp"
 
-bool repeats(std::vector<Pair> data)
+std::vector<Pair> generateInitialRow(unsigned int size)
 {
-	for(unsigned int indexA = 0; indexA < data.size(); ++indexA)
+	std::vector<Pair> result;
+
+	for(unsigned int index = 0; index < size; ++index)
 	{
-		Pair p = data.at(indexA);
+		Pair p(index * 2, index * 2 + 1);
+		
+		result.push_back(p);
+	}
 
-		for(unsigned int indexB = 0; indexB < data.size(); ++indexB)
+	return result;
+}
+
+void printGrid(std::vector<Pair> grid, unsigned int size)
+{
+	for(unsigned int y = 0; y < size; ++y)
+	{
+		std::cout << "\t";
+
+		for(unsigned int x = 0; x < size; ++x)
 		{
-			if(indexB == indexA)
-				continue;
+			std::cout << grid.at(x + size * y).m_a << ":" << grid.at(x + size * y).m_b << "\t";
+		}
 
-			Pair p2 = data.at(indexB);	
+		std::cout << std::endl;
+	}
+}
 
-			if(p.a == p2.a && p.b == p2.b)
-			{
-				return true;
-			}
+std::vector<Pair> solveStochastic(std::vector<Pair> initialRow)
+{
+	srand(time(0));
+
+	unsigned int size = initialRow.size();
+
+	std::vector<Pair> result;
+	std::vector<Pair> bestResult;
+	unsigned int bestFitness;
+
+	result.insert(result.end(), initialRow.begin(), initialRow.end());
+	std::vector<Pair> previousRow;
+	previousRow.insert(previousRow.end(), initialRow.begin(), initialRow.end());
+
+	unsigned int neighborhood = 1;
+
+	// get initial solution x (random solution)
+	// get neighborhood k  (last row)
+
+	// x1 = shake x in neighborhood k
+
+	// x2 = firstImprovement(x1) find the first better solution
+
+	// k += 1 (add another row to the neighborhood
+
+	// when we get to k = rowCount, go back to bottom
+
+	
+	// CREATE INITIAL SOLUTION
+	for(unsigned int row = 1; row < size; ++row)
+	{
+		std::vector<unsigned int> leftNumbers;
+		for(unsigned int index = 0; index < size; ++index)
+			leftNumbers.push_back(index * 2);
+		
+		std::vector<unsigned int> rightNumbers;
+		for(unsigned int index = 0; index < size; ++index)
+			rightNumbers.push_back((index * 2) + 1);
+
+		
+		for(unsigned int column = 0; column < size; ++column)
+		{
+			Pair newPair;
+
+			unsigned int leftNumberIndex = rand() % leftNumbers.size();
+			newPair.m_a = leftNumbers.at(leftNumberIndex);
+			leftNumbers.erase(leftNumbers.begin() + leftNumberIndex);
+			
+			unsigned int rightNumberIndex = rand() % rightNumbers.size();
+			newPair.m_b = rightNumbers.at(rightNumberIndex);
+			rightNumbers.erase(rightNumbers.begin() + rightNumberIndex);
+
+			result.push_back(newPair);
 		}
 	}
 
-	return false;
-}
-
-std::vector<Pair> generateNextRow(std::vector<Pair> row)
-{ 
-	std::vector<Pair> result;
+	bestResult = result;
 	
-	// get the last element and put it at the begining
-	Pair p = {row.at(row.size() - 1).a, row.at(1).b};
-	result.push_back(p);
+	bestFitness = fitness(bestResult, size);
 
-	// the next element is of the row before it, don't add the last one because we already did
-	for(unsigned int index = 0; index < row.size() - 1; ++index)
+	unsigned int bestNeighborhoodFitness = bestFitness;
+
+	unsigned int iterations = 0;
+
+	unsigned int currentFitness = bestFitness;
+
+	bestNeighborhoodFitness = currentFitness;
+
+	std::vector<Pair> bestNeighborhoodResult = result;
+
+	while(bestFitness != 0)
 	{
-		Pair p = {row.at(index).a, 0};
-		result.push_back(p);
-	}
-
-	// now for the right side
-	// the next element is of the row after it
-	for(unsigned int index = 1; index < row.size() - 1; ++index)
-	{
-		result.at(index).b = row.at(index + 1).b;
-	}
-
-	result.at(result.size() - 1).b = row.at(0).b;
-
-
-	return result;
-}
-
-// move left row down
-std::vector<Pair> generateNextRowLeft(std::vector<Pair> row)
-{
-	std::vector<Pair> result;
-	
-	// get the last element and put it at the begining
-	Pair p = {row.at(row.size() - 1).a, row.at(0).b};
-	result.push_back(p);
-
-	// the next element is of the row before it, don't add the last one because we already did
-	for(unsigned int index = 0; index < row.size() - 1; ++index)
-	{
-		Pair p = {row.at(index).a, row.at(index + 1).b};
-		result.push_back(p);
-	}
-
-	return result;
-}
-
-// move right row up
-std::vector<Pair> generateNextRowRight(std::vector<Pair> row)
-{
-	std::vector<Pair> result;
-	
-	// the next element is of the row before it, don't add the last one because we already did
-	for(unsigned int index = 0; index < row.size() - 1; ++index)
-	{
-		Pair p = {row.at(index).a, row.at(index + 1).b};
-		result.push_back(p);
-	}
-
-	Pair p = {row.at(row.size() - 1).a, row.at(0).b};
-	result.push_back(p);
-
-	return result;
-
-}
-
-void print(std::vector<Pair> data)
-{
-	for(Pair p : data)
-	{
-		std::cout << "\t" <<  p.a << ":" << p.b << " ";
-	}
-
-	std::cout << std::endl;
-}
-
-void solveEvenN(unsigned int n)
-{
-	std::vector<Pair> endResult;
-	
-	std::vector<Pair> row;
-
-	for(unsigned int index = 0; index < n; ++index)
-	{
-		row.push_back({index*2, (index*2)+1});	
-	}
-
-	print(row);
-
-	endResult.insert(endResult.end(), row.begin(), row.end());
-
-	for(unsigned int index = 0; index < row.size() - 1; ++index)
-	{
-
-//		row = generateNextRowRight(row);
-//		row = generateNextRowRight(row);
-//		row = generateNextRowRight(row);
-	
-//		if(index == (n/2) - 1)
-//			row = generateNextRowRight(row);
+		// FIND FIRST IMPROVEMENT FROM CHANGING THE NEIGHBORHOOD
+		for(unsigned int run = 0; run < 10000; ++run)
+		{
+			unsigned int row = size - 1 - (rand() % neighborhood);
 		
+			// WIGGLE	
+			{
+				if(rand() % 2 == 0)
+				{
+					// swap two left values
+					unsigned int swap_left_1 = rand() % size;	
+					unsigned int swap_left_2 = rand() % size;
+					unsigned int a_1 = result.at(swap_left_1 + size * row).m_a;
+					unsigned int a_2 = result.at(swap_left_2 + size * row).m_a;
+					result.at(swap_left_1 + size * row).m_a = a_2;
+					result.at(swap_left_2 + size * row).m_a = a_1;
+				}
+				else
+				{
+					// swap two right values
+					unsigned int swap_right_1 = rand() % size;
+					unsigned int swap_right_2 = rand() % size;
+					unsigned int b_1 = result.at(swap_right_1 + size * row).m_b;
+					unsigned int b_2 = result.at(swap_right_2 + size * row).m_b;
+					result.at(swap_right_1 + size * row).m_b = b_2;
+					result.at(swap_right_2 + size * row).m_b = b_1;
+				}
+			}
+
+			// GET CURRENT FITNESS
+			currentFitness = fitness(result, size);
+			++iterations;
+
+			// IF CURRENT FITNESS IS THE BEST ONE FOR THE NEW NEIGHBORHOOD THEN KEEP NOTE
+			// THIS SHOULD BE TRUE FOR THE FIRST ONE ALWAYS
+			if(currentFitness < bestNeighborhoodFitness)
+			{
+				bestNeighborhoodFitness = currentFitness;
+				bestNeighborhoodResult = result;
 		
-//		row = generateNextRowLeft(row);
-		row = generateNextRow(row);
-//		row = generateNextRow(row);
-//		row = generateNextRow(row);
+				// IF THE CURRENT FITNESS IS BETTER THAN THE GLOBAL
+				// PRINT THE INFORMATION
+				// NOTE THE BEST	
+				if(currentFitness < bestFitness)
+				{
+					printGrid(result, size);
+					std::cout << "Fitness: " << currentFitness << std::endl;
+					std::cout << "Iterations: " << iterations << std::endl << std::endl;
+					bestFitness = currentFitness;
+					bestResult = result;
+				}
+			
+				// KEEP GOING IF WE ARE FINDING BETTER SOLUTIONS	
+				run = 0;
+			}
+		}
 
-		print(row);
-
-		endResult.insert(endResult.end(), row.begin(), row.end());
+		// CHANGE THE NEIGHBORHOOD
+		neighborhood += 1;
+		// RESET THE BEST NEIGHBORHOOD 
+		bestNeighborhoodFitness = -1;
+		result = bestNeighborhoodResult;
+		if(neighborhood == size)
+		{
+			neighborhood = 1;
+		}
 	}
-
-	std::cout << "Repeats: " << repeats(endResult) << std::endl;
-}
-
-void solveOddN(unsigned int n)
-{
-	std::vector<Pair> endResult;
 	
-	std::vector<Pair> row;
+	return result;
+} 
 
-	for(unsigned int index = 0; index < n; ++index)
-	{
-		row.push_back({index*2, (index*2)+1});	
-	}
-
-	print(row);
-
-	endResult.insert(endResult.end(), row.begin(), row.end());
-
-	for(unsigned int index = 0; index < row.size() - 1; ++index)
-	{
-		row = generateNextRow(row);
-		print(row);
-
-		endResult.insert(endResult.end(), row.begin(), row.end());
-	}
-
-	std::cout << "Repeats: " << repeats(endResult) << std::endl;
-}
 
 int main(int argc, char ** argv)
 {
-	unsigned int n = std::stoi(argv[1]);
+	unsigned int size = std::atoi(argv[1]);
 
-	if(n % 2 == 0)
-	{
-		solveEvenN(n);
-	}
-	else if(n % 2 == 1)
-	{
-		solveOddN(n);
-	}
+	std::vector<Pair> i = generateInitialRow(size);
 
+	std::cout << std::endl;
+
+	std::vector<Pair> result;
+
+	result = solveStochastic(i);
+
+	printGrid(result, size);
+
+	std::cout << std::endl;
+
+	unsigned int f = fitness(result, size);
+
+	std::cout << "Fitness Test: " << f << std::endl << std::endl;
+	
 	return 0;
-
 }

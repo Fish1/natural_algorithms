@@ -1,2 +1,2 @@
 install:
-	g++ -g index.cpp
+	g++ index.cpp

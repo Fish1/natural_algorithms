@@ -1,0 +1,20 @@
+-- How to Run --
+make
+./a.out <size>
+
+<size> is the number of desired games, this number should be 3 or greater
+
+
+-- My Algorithm -- Variable Neighborhood Search --
+
+1) Generate a random solution
+
+2) In the current neighborhood, make a random change and accept it.
+	This change and current fitness are now the best for the neighborhood.
+
+3) Wiggle around the neighborhood, and find better solutions.
+
+4) After a while of not finding anything better, iterate the neighborhood.
+	This new neighborhood starts with the best solution from the previous neighborhood.
+
+5) After iterating through all the neighborhoods for a while, randomize the entire solution.
